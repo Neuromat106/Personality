@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personality Test</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-tr from-purple-100 via-pink-100 to-yellow-100 min-h-screen flex flex-col items-center px-4 py-10">
+  <div class="max-w-3xl w-full bg-white shadow-2xl rounded-xl p-8">
+    <h1 class="text-4xl font-bold text-center text-purple-700 mb-6">Personality Test</h1>
+    <form id="testForm" class="space-y-6">
+      <div id="questions" class="space-y-6"></div>
+      <div class="text-center">
+        <button type="submit" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-full transition duration-300">Submit</button>
+      </div>
+    </form>
+    <div class="results text-xl font-semibold text-center text-green-700 mt-8" id="results"></div>
+  </div>
+
+  <script>
+    const questions = [
+      ["Do you feel more energized after spending time with others?", "E", "Yes, I feel energized and ready to go.", "No, I feel drained and need some time alone to recharge."],
+      ["In a social setting, do you often take the lead in conversations or activities?", "E", "Yes, I enjoy leading and interacting with others.", "No, I prefer to listen and observe."],
+      ["How do you prefer to spend your weekends?", "E", "Hanging out with friends or participating in group activities.", "Relaxing at home, reading, or working on personal projects."],
+      ["Do you tend to focus more on the external world and what’s going on around you?", "E", "Yes, I’m always aware of and involved in my surroundings.", "No, I focus more on my inner thoughts and reflections."],
+      ["When faced with a new group of people, how do you typically approach them?", "E", "I actively introduce myself and start conversations.", "I wait for others to approach me or for the situation to settle."],
+      ["When making decisions, do you prefer to rely on past experiences or future possibilities?", "S", "I prefer to rely on past experiences and concrete facts.", "I like to consider future possibilities and abstract ideas."],
+      ["Do you like to focus on the details of a situation or the big picture?", "S", "I like focusing on the specific details and practical aspects.", "I prefer seeing the overall picture and conceptualizing future outcomes."],
+      ["When solving problems, do you usually trust your senses and direct experience?", "S", "Yes, I trust what’s tangible and observable.", "No, I tend to focus on patterns and underlying meanings."],
+      ["Do you prefer clear, factual information or open-ended, theoretical discussions?", "S", "I prefer clear facts and precise information.", "I enjoy discussions that explore ideas and theories."],
+      ["When tackling a task, do you focus more on following a tried-and-true method or experimenting with innovative ideas?", "S", "I stick to methods that have worked before.", "I prefer exploring creative and unconventional approaches."],
+      ["When making decisions, do you prioritize logic and objectivity or emotions and personal values?", "T", "I prioritize logic and reason to make decisions.", "I prioritize emotions and the impact on people’s feelings."],
+      ["Do you find it more satisfying to solve problems with efficiency or with harmony?", "T", "I prefer solving problems logically and efficiently.", "I prefer solutions that maintain harmony and the feelings of others."],
+      ["When dealing with conflict, do you tend to stay calm and detached or express your emotions openly?", "T", "I stay calm and focus on the facts.", "I express my feelings and try to understand others’ emotions."],
+      ["Do you prefer a decision-making process that’s based on fairness or one that values compassion?", "T", "Fairness and justice are most important.", "Compassion and understanding of people’s needs come first."],
+      ["Do you evaluate success based on measurable results or the overall impact on people involved?", "T", "Success is about achieving tangible, measurable results.", "Success is about creating positive experiences and outcomes for everyone involved."],
+      ["Do you prefer having a structured, planned approach or a flexible, spontaneous one?", "J", "I prefer to have a clear plan and structure in place.", "I prefer to keep things flexible and open-ended."],
+      ["How do you feel about deadlines and last-minute work?", "J", "I prefer to finish tasks well before the deadline.", "I work best when I have the freedom to adjust until the last minute."],
+      ["Do you like having things settled and decided or do you enjoy keeping options open?", "J", "I like having things settled and decided.", "I enjoy keeping options open and adapting to new information."],
+      ["Do you feel more comfortable when your plans are in place or when you can explore new opportunities as they come?", "J", "I feel more comfortable when plans are well-organized.", "I like the freedom to explore and adapt as things evolve."],
+      ["When planning a trip, do you prefer to have an itinerary or explore as you go?", "J", "I prefer to have a detailed itinerary to ensure everything goes smoothly.", "I like to go with the flow and see where the journey takes me."]
+    ];
+
+    const resultsMap = {
+      "INTJ": "Strategic, innovative, and insightful. You like structured plans and value logic.",
+      "INFP": "Idealistic, empathetic, and introspective. You value meaning and harmony.",
+      "ENFP": "Energetic, creative, and sociable. You love exploring possibilities.",
+      "ESTJ": "Organized, realistic, and decisive. You enjoy leadership and structure."
+    };
+
+    const container = document.getElementById("questions");
+    questions.forEach((q, index) => {
+      container.innerHTML += `
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <p class="font-medium mb-2">${index + 1}. ${q[0]}</p>
+          <label class="block mb-1"><input type="radio" name="q${index}" value="A" required class="mr-2"> A) ${q[2]}</label>
+          <label class="block"><input type="radio" name="q${index}" value="B" class="mr-2"> B) ${q[3]}</label>
+        </div>`;
+    });
+
+    document.getElementById("testForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      let counts = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+
+      questions.forEach((q, index) => {
+        const answer = document.querySelector(`input[name='q${index}']:checked`).value;
+        const type = q[1];
+        if (answer === "A") counts[type]++;
+        else {
+          const opposite = ({ E: "I", S: "N", T: "F", J: "P" })[type];
+          counts[opposite]++;
+        }
+      });
+
+      const result = [
+        counts.E >= counts.I ? "E" : "I",
+        counts.S >= counts.N ? "S" : "N",
+        counts.T >= counts.F ? "T" : "F",
+        counts.J >= counts.P ? "J" : "P"
+      ].join("");
+
+      const description = resultsMap[result] || "You're a unique mix!";
+      document.getElementById("results").innerText = `Your personality type is ${result}: ${description}`;
+    });
+  </script>
+</body>
+</html>
